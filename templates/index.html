@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+ 
+
+</head>
+<body> 
+    <form class="myform" action="/search" method="POST">
+        <input name="searchfor"/> 
+        <button type="submit">display</button>
+    </br>
+        {% if symbols_list %}
+            {% for symbol in symbols_list %}
+              <a href="/api/{{symbol}}"> {{symbol}}</a>
+    </br>
+            {% endfor %}
+        {% endif %}
+    </form> 
+    {% if response %}
+    <p>
+        {{response}}
+    </p>
+    {% endif %} 
+</body> 
+</html>
