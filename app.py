@@ -58,7 +58,9 @@ def api_data(symbol):
     querystring = {"q":f"{symbol}","region":"US"}
     headers = {'x-rapidapi-key':"d7a08a194bmshe740dbe49b19340p19bcadjsn09656858a655",'x-rapidapi-host':"apidojo-yahoo-finance-v1.p.rapidapi.com"} 
     response = requests.get(URL, headers=headers, params=querystring) 
-    print(json.dumps(response.json())) 
+    x = response.json()
+    y = x["news"]
+    print(y[0]['title'])
     return render_template("index.html",response = response.json())
 
 

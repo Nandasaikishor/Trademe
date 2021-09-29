@@ -20,10 +20,9 @@
             {% endfor %}
         {% endif %}
     </form> 
-    {% if response %}
-    <p>
-        {{response}}
-    </p>
+    {% if response %} 
+          <h3 style="color: rgb(255, 0, 0);">News:</h1>
+          <a href="{{response['news'][0]['link']}}" target="_blank">{{response['news'][0]['title']}}</a> 
     {% endif %} 
 </body> 
 </html>
