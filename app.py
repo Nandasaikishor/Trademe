@@ -29,7 +29,7 @@ def default():
     return render_template("index.html")
 
 
-@app.route("/search", methods =["GET", "POST"])
+@app.route("/search", methods =["GET", "POST"]) # route for searching stocks
 def display():
     if request.method == "POST":  
            searchItem = request.form.get("searchfor") 
@@ -51,16 +51,13 @@ def display():
            else: 
                    return render_template("index.html")
            
-@app.route("/api/<symbol>")
+@app.route("/api/<symbol>")  # route for single stock
 def api_data(symbol):  
     print(symbol)
     URL = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/auto-complete"
     querystring = {"q":f"{symbol}","region":"US"}
     headers = {'x-rapidapi-key':"d7a08a194bmshe740dbe49b19340p19bcadjsn09656858a655",'x-rapidapi-host':"apidojo-yahoo-finance-v1.p.rapidapi.com"} 
-    response = requests.get(URL, headers=headers, params=querystring) 
-    x = response.json()
-    y = x["news"]
-    print(y[0]['title'])
+    response = requests.get(URL, headers=headers, params=querystring)  
     return render_template("index.html",response = response.json())
 
 

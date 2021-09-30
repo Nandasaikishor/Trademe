@@ -41,6 +41,8 @@ def signin():
 
        if(x[0] == usern): 
            print(usern)
+           #As username exist we use same logic for password
+           #We fetch  password from database then compare with form data
            passwordstatement = f"SELECT pswrd FROM Userregst WHERE Username = '{x[0]}';" 
            mycursor.execute(passwordstatement)
            passwordfound = mycursor.fetchall()
@@ -48,9 +50,11 @@ def signin():
            print(y[0])  
            password=password.replace("'","")
            print(password)
+           #over here as password contains "," operator in the database output we are removing that for ease comparision
            if(y[0] == password):
                print("logged")
-       
+               #once password is also verified user can proceed with his activity
+               
          
 
       

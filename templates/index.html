@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-
- 
-
+    <title>Document</title>  
 </head>
 <body> 
+    <!-- search form -->
     <form class="myform" action="/search" method="POST">
         <input name="searchfor"/> 
         <button type="submit">display</button>
@@ -20,7 +18,8 @@
             {% endfor %}
         {% endif %}
     </form> 
-    {% if response %} 
+    <!-- displaying the contents of particular stocks -->
+    {% if response %}  
           <h3 style="color: rgb(255, 0, 0);">News:</h1>
           <a href="{{response['news'][0]['link']}}" target="_blank">{{response['news'][0]['title']}}</a> 
     {% endif %} 
