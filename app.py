@@ -1,4 +1,5 @@
 # importing Flask and other modules  
+from os import terminal_size
 from re import X
 from typing import List
 import requests
@@ -29,14 +30,14 @@ status_code = response.status_code
 print(status_code) 
 """
 
-RAPIDAPI_KEY    = "3b17580dafmsh7f4f720f9633022p1390f2jsne35be8f4c1cf" 
+RAPIDAPI_KEY    = "3b17580dafmsh7f4f720f9633022p1390f2jsne35be8f4c1cf"  
 RAPIDAPI_HOST = "yh-finance.p.rapidapi.com"
 
-inputdata = {}
+inputdata = {} 
 
 @app.route("/")
-def default():
-    return render_template("index.html")
+def default():  
+ return render_template("index.html")
 
 
 @app.route("/search", methods =["GET", "POST"]) # route for searching stocks
@@ -75,16 +76,16 @@ def fetchStockData(symbol):
     response = requests.get(URL, headers=headers, params=querystring)
     stockData = response.json()
 
-    print(stockData)
+    #print(stockData)
 
     inputdata["Timestamp"] = parseTimestamp(stockData)
 
     inputdata["Values"] = parseValues(stockData)
 
     inputdata["Events"] = attachEvents(stockData)
-
+    print(inputdata)
     df = pd.DataFrame(inputdata)  # creating data frame using pandas
-    print(df)
+    #print(df)
     sns.set(style="darkgrid")
     rcParams['figure.figsize'] = 13,5
     rcParams['figure.subplot.bottom'] = 0.2
@@ -103,9 +104,9 @@ def fetchStockData(symbol):
 
     plt.show()
 
-
+    
     # print(json.dumps(response.json())) 
-    return render_template("index.html")
+    return fetchNewsAndQuotes(stockData)
 
 
      
@@ -145,8 +146,39 @@ def attachEvents(inputdata):
   print(len(eventList))
   return eventList
 
+# route for fetching news and quotes from fetchquotes()
+def fetchNewsAndQuotes(stockData):
+    symbol = stockData["chart"]["result"][0]["meta"]["symbol"]
+    stockValue = stockData["chart"]["result"][0]["meta"]["regularMarketPrice"]
+    url = "https://yh-finance.p.rapidapi.com/auto-complete"
+    
+    querystring = {"q":f"{symbol}","region":"US"}
 
+    headers = {
+    'x-rapidapi-host': RAPIDAPI_HOST,
+    'x-rapidapi-key':  RAPIDAPI_KEY
+    } 
 
+    response = requests.request("GET", url, headers=headers, params=querystring)
 
+    newsdata = response.json()
+    quotesdata = fetchquotes(symbol)
+    newslen = len(newsdata["news"])  
+    return render_template("index.html",response=response.json(),quotes=quotesdata,newslen = newslen,stockValue=stockValue,symbol=symbol)
+ 
+def fetchquotes(symbol): # fetching quotes 
+    
+    url = "https://yh-finance.p.rapidapi.com/market/v2/get-quotes"
+    
+    querystring = {"q":f"{symbol}","region":"US"}
+
+    headers = {
+    'x-rapidapi-host': RAPIDAPI_HOST,
+    'x-rapidapi-key':  RAPIDAPI_KEY
+    }
+
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    result = response["quoteResponse"]["result"]
+    return result
 if __name__=='__main__':
   app.run()

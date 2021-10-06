@@ -3,25 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>  
+    <title>Document</title>   
+    <link rel="stylesheet" href="/static/css/index.css">
 </head>
 <body> 
-    <!-- search form -->
-    <form class="myform" action="/search" method="POST">
-        <input name="searchfor"/> 
-        <button type="submit">display</button>
-    </br>
-        {% if symbols_list %}
-            {% for symbol in symbols_list %}
-              <a href="/api/{{symbol}}"> {{symbol}}</a>
-    </br>
+    <div>
+        <!-- search form -->
+        <form class="myform" action="/search" method="POST">   
+            <input name="searchfor"/> 
+            <button type="submit">display</button>
+        </br>
+            {% if symbols_list %}
+                {% for symbol in symbols_list %}
+                  <a href="/api/{{symbol}}"> {{symbol}}</a>
+        </br>
+                {% endfor %}
+            {% endif %}
+        </form> 
+        <!-- displaying the contents of particular stocks -->
+      <!--  <div class="content">
+            {% if response %}   
+            <h3 style="color: black;">News:</h1> 
+            {% for i in range(newslen) %}
+            <a href="{{response['news'][i]['link']}}" target="_blank">{{response['news'][i]['title']}}</a>  
             {% endfor %}
-        {% endif %}
-    </form> 
-    <!-- displaying the contents of particular stocks -->
-    {% if response %}  
-          <h3 style="color: rgb(255, 0, 0);">News:</h1>
-          <a href="{{response['news'][0]['link']}}" target="_blank">{{response['news'][0]['title']}}</a> 
-    {% endif %} 
+            {% endif %} 
+        </div>
+        -->
+            {% if response %}   
+            <div class="content">
+                <div id="stock-value">{{stockValue}}({{symbol}})</div>
+            <div class="quotes-graph">
+                <div id="quotes"> 
+                <div class="quote-column">
+                    <text>Previous Close : {{quotes["regularMarketPreviousClose"]}}</text>
+                    <text>quote1:</text>
+                    <text>quote1:</text>
+                </div> 
+                <div class="quote-column"> 
+                    <text>quote1:</text>
+                    <text>quote1:</text>
+                    <text>quote1:</text>
+                </div> 
+                </div> 
+               <div id="graph">
+                   
+               </div>
+            </div>
+          {% for i in range(newslen) %}
+                <div id="news">
+                <a id="news-item" href="{{response['news'][i]['link']}}" target="_blank">{{response['news'][i]['title']}}</a>  
+                </div>
+                <div></div>
+          {% endfor %} 
+        </div>
+        {% endif %}  
+    </div>
+
 </body> 
 </html>
