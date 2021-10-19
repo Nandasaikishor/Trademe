@@ -3,13 +3,11 @@ import mysql.connector
 
 from flask import Flask, request, render_template 
   
-# Flask constructor
-app = Flask(__name__)   
+# Flask constructor 
   
 # A decorator used to tell the application
-# which URL is associated function
-@app.route('/', methods =["GET", "POST"])
-def signin():
+# which URL is associated function 
+def login():
     if request.method == "POST":
        # getting input with name = fname in HTML form
        usern = request.form.get("user")
@@ -63,5 +61,4 @@ def signin():
     
     return render_template("Loginpage.html")
   
-if __name__=='__main__':
-   app.run()
+ 
