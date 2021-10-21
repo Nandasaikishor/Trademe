@@ -2,6 +2,7 @@
 from os import terminal_size
 from re import X
 from typing import List
+from flask.helpers import url_for
 import requests
 import json
 from flask import Flask, request, render_template
@@ -13,8 +14,8 @@ from matplotlib import rcParams
 
 import mysql.connector
 
-from signin.signin import *
-
+#from signin.signin import *
+from test import test
 mydb = mysql.connector.connect(
   host="localhost",
   user="root",
@@ -23,6 +24,9 @@ mydb = mysql.connector.connect(
 )
 
 app = Flask(__name__)
+app.register_blueprint(test) 
+
+
 """
 URL = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/auto-complete"
 querystring = {"q":"tesla","region":"US"}
@@ -44,9 +48,6 @@ inputdata = {}
 def default():
    return render_template("index.html")
 
-@app.route("/login", methods =["GET", "POST"])
-def logging():
-    login()
 
 @app.route("/search", methods =["GET", "POST"]) # route for searching stocks
 def display():
