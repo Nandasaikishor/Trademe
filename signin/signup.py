@@ -1,34 +1,32 @@
 # importing Flask and other modules
-import mysql.connector
-from flask import Flask, request, render_template 
+import mysql.connector 
   
-# Flask constructor
-app = Flask(__name__)   
+# Flask constructor 
   
 # A decorator used to tell the application
 # which URL is associated function
-@app.route('/', methods =["GET", "POST"])
-def vald():
-    if request.method == "POST":
+ 
+def valid(usern,mail_id,password,phoneno):
+    #if request.method == "POST":
        # getting input with name = fname in HTML form
-       usern = request.form.get("user")
-       print(usern)
+       #usern = request.form.get("user")
+       #print(usern)
        # getting input with name = lname in HTML form 
-       mail_id = request.form.get("email")
+       #mail_id = request.form.get("email")
        #getting mail id of user
-       password = request.form.get("pswrd")
+      # password = request.form.get("pswrd")
        #getting password of account
-       phoneno = request.form.get("phone")
+      # phoneno = request.form.get("phone")
        #getting phone number
        print("Your regst is "+usern + mail_id + password + phoneno)
        
        #now connecting to database
        mydb = mysql.connector.connect(
-       host="localhost",
-       user="root",
-       password="rainbowjump",
-       database="mysql"
-       )
+  host="localhost",
+  user="root",
+  password="sql@123#",
+  database="stocks"
+)
        mycursor = mydb.cursor()
        #mycursor.execute("CREATE TABLE Userregst (Username VARCHAR(255), mail_id VARCHAR(255), pswrd VARCHAR(255), phoneno VARCHAR(100),PRIMARY KEY (`mail_id`))")
        #We have a database created, so we now insert data into columns using Insert into command 
@@ -44,8 +42,4 @@ def vald():
            print("u missed data")
        #Now we check if all data is inserted or not
        print(mycursor.rowcount, "record inserted.")
-       return "Your regst is "+usern + mail_id + password + phoneno
-    return render_template("validation.html")
-  
-if __name__=='__main__':
-   app.run()
+       return "Your regst is "+usern + mail_id + password + phoneno 

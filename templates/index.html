@@ -5,22 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>   
     <link rel="stylesheet" href="/static/css/index.css">
+ 
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type=text/javascript>
+            $(function() {
+              $('a#test').on('click', function(e) {
+                e.preventDefault()
+                $.getJSON('/bookmarkit',
+                    function(data) {
+                  //do nothing
+                });
+                return false;
+              });
+            });
+    </script>
+
+
+
 </head>
 <body> 
     <div>
         <!-- search form -->
         <form class="myform" action="/search" method="POST">   
-            <center>
-                <a href="/user/login">Login</a> &nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp;
-               <!-- <a href="C:\Users\nanda\Documents\trademe\signin\templates\validation.html">Signup</a>--> 
+            <center> 
+                {% if loginfail %}
+                <a href="/login">Login</a>
+                <a href="/signup">Signup</a> 
                 <input type="text" name="searchfor"/> 
                 <button type="submit">Search</button>
+                <div id="profile">{{username}}</div>
+                {% else %}
+                {% if username %}
+                <a href="/logout">Logout</a>
+                <input type="text" name="searchfor"/> 
+                <button type="submit">Search</button>
+                <div id="profile">{{username}}</div> 
+                {% else %}
+                <a href="/login">Login</a> &nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;
+                <a href="/signup">Signup</a>
+                <input type="text" name="searchfor"/>
+                <button type="submit">Search</button>
+                {% endif %}
+                {% endif %}
                 </center>
         </form>  
         </br>
 
-            {% if symbols_list %}
+            {% if symbols_list %} 
                 {% for symbol in symbols_list %}
                   <a href="/api/{{symbol}}"> {{symbol}}</a>
         </br>
@@ -50,7 +83,10 @@
         -->
             {% if news %}   
             <div class="content">
-                <div id="stock-value">{{stockValue}}({{symbol}})</div>
+                <div id="stock-value">{{stockValue}}({{symbol}})</div> 
+                <form action="/bookmarkit" method="POST">
+                    <a href=# id=test><button type="submit" value="{{symbol}}" name="stock">Test</button></a>
+                </form>
             <div class="quotes-graph">
                 <div id="quotes"> 
                 <div class="quote-column">
@@ -102,4 +138,7 @@
     </div>
 
 </body> 
+<script>
+    
+</script>
 </html>

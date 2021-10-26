@@ -1,7 +1,7 @@
 # importing Flask and other modules
 import mysql.connector
 
-from flask import Flask, request,Blueprint, render_template 
+#from flask import Flask, request,Blueprint, render_template 
   
 # Flask constructor 
 
@@ -11,14 +11,14 @@ from flask import Flask, request,Blueprint, render_template
 # which URL is associated function
  
  
-def login():
-    if request.method == "POST":
+def login(usern,password):
+    #if request.method == "POST":
        # getting input with name = fname in HTML form
-       usern = request.form.get("user")
+       #usern = request.form.get("user")
        #print(usern)
        # getting input with name = lname in HTML form 
        #mail_id = request.form.get("email")
-       password = request.form.get("password")
+       #password = request.form.get("password")
        #phoneno = request.form.get("phone")
        #print("Your regst is "+usern + password)
        mydb = mysql.connector.connect(
@@ -38,27 +38,27 @@ def login():
 
        userstatement = f"SELECT Username FROM Userregst WHERE Username = '{usern}';"
        mycursor.execute(userstatement)
-       userfound = mycursor.fetchall() 
-       x = userfound[0]
-
+       userfound = mycursor.fetchall()
+       if(userfound): 
+        x = userfound[0]
+       else:
+           return False
        if(x[0] == usern): 
            print(usern)
            passwordstatement = f"SELECT pswrd FROM Userregst WHERE Username = '{x[0]}';" 
            mycursor.execute(passwordstatement)
            passwordfound = mycursor.fetchall()
            y=passwordfound[0]
-           print(y[0])  
            password=password.replace("'","")
-           print(password)
            if(y[0] == password):
-               print("logged")
+               return True
        
          
 
       
-       return "Your regst is "+usern+password
+       return False
     
     
-    return render_template("loginPage.html")
+   # return render_template("index.html")
   
  

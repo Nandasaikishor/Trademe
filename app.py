@@ -1,7 +1,7 @@
 # importing Flask and other modules  
 from os import terminal_size
 from re import X
-from typing import List
+from typing import List, NoReturn
 from flask.helpers import url_for
 import requests
 import json
@@ -13,9 +13,9 @@ from datetime import datetime
 from matplotlib import rcParams  
 
 import mysql.connector
-
-#from signin.signin import *
-from test import test
+ 
+from signin.signin import login
+from signin.signup import valid
 mydb = mysql.connector.connect(
   host="localhost",
   user="root",
@@ -23,8 +23,7 @@ mydb = mysql.connector.connect(
   database="stocks"
 )
 
-app = Flask(__name__)
-app.register_blueprint(test) 
+app = Flask(__name__) 
 
 
 """
@@ -41,13 +40,55 @@ RAPIDAPI_KEY = "a0d2fdbc8fmsha5fcc65f88fcaf5p18caf8jsn6463b5483650"
 RAPIDAPI_HOST = "yh-finance.p.rapidapi.com"
 
 inputdata = {} 
-
+USERNAME = ""
 
 
 @app.route("/")
 def default():
-   return render_template("index.html")
+   return render_template("index.html",username = USERNAME)
 
+ #LOGIN
+
+@app.route("/login/user",methods = ["GET", "POST"])
+def checkuser():
+  print("before") 
+  usern = request.form.get("user")
+  print(usern)
+  password = request.form.get("password")
+  print("adsasd")
+  
+  if(login(usern,password)):
+    global USERNAME
+    USERNAME = usern
+    return render_template("index.html",username=usern) 
+  else:
+    USERNAME = "check your login details"
+    return render_template("index.html",username="check your login details",loginfail=True)
+@app.route("/login")
+def renderlogin():
+ return  render_template("loginPage.html")
+@app.route("/logout")
+def logout():
+  global USERNAME
+  USERNAME = ""
+  return render_template("index.html") 
+
+#SIGNIN
+
+@app.route("/signup/user",methods = ["GET", "POST"])
+def reguser():
+  print("before") 
+  usern = request.form.get("user")
+  print(usern)
+  password = request.form.get("password")
+  print("adsasd")
+  mail_id = request.form.get("email")
+  phoneno = request.form.get("phone")
+  print(phoneno)
+  return valid(usern,mail_id,password,phoneno) 
+@app.route("/signup")
+def rendersignup():
+  return render_template("validation.html") 
 
 @app.route("/search", methods =["GET", "POST"]) # route for searching stocks
 def display():
@@ -66,13 +107,13 @@ def display():
              for x in myresult:
                symbols_list.extend(x) 
                #print(symbols_list)
-             return render_template("index.html",symbols_list = symbols_list) 
+             return render_template("index.html",symbols_list = symbols_list,username = USERNAME) 
 
            else: 
-                   return render_template("index.html")
+                   return render_template("index.html",username = USERNAME)
            
-@app.route("/api/<symbol>")  # route for fetching stock data
-def fetchStockData(symbol):  
+@app.route("/api/<symbol>")  # route for fetching stock data   
+def fetchStockData(symbol):   
     #print(symbol)
     URL = "https://yh-finance.p.rapidapi.com/market/get-charts"  
     querystring = {"symbol":f"{symbol}","interval":"1d","range":"1mo","region":"US","comparisons":"^GDAXI,^FCHI"}
@@ -155,7 +196,11 @@ def attachEvents(inputdata):
     eventList.append("close")
   #print(len(eventList))
   return eventList
-
+@app.route("/bookmarkit", methods =["GET", "POST"])
+def bookmark():
+    stock = request.form.get("stock")
+    print("ads")
+    return "NULL"
 # route for fetching news and quotes from fetchquotes()
 def fetchStockDetails(stockData): 
     symbol = stockData["chart"]["result"][0]["meta"]["symbol"]
@@ -174,8 +219,9 @@ def fetchStockDetails(stockData):
     recs = fetchRecs(symbol)
     print(recs["finance"]["result"][0]["quotes"][0]["symbol"])
     #newslen = len(newsdata["news"])  
-    return render_template("index.html",news=response.json(),quotes=quotesData,stockValue=stockValue,symbol=symbol,recs=recs)
- 
+    return render_template("index.html",news=response.json(),quotes=quotesData,stockValue=stockValue,symbol=symbol,recs=recs,username = USERNAME)
+
+
 def fetchQuotes(symbol): # fetching quotes   
     url = "https://yh-finance.p.rapidapi.com/market/v2/get-quotes"
 
