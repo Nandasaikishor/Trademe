@@ -50,7 +50,15 @@
                 {% endif %}
                 {% endif %}
                 </center>
-        </form>  
+        </form>
+        {% if username %} 
+        {% if bookmarks %}
+           {% for bookmark in bookmarks %}
+           <a href="/api/{{bookmark}}"> {{bookmark}}</a>&nbsp;&nbsp;&nbsp;
+           &nbsp;&nbsp;&nbsp; 
+           {% endfor %} 
+        {% endif %}
+        {% endif %} 
         </br>
 
             {% if symbols_list %} 
@@ -84,9 +92,11 @@
             {% if news %}   
             <div class="content">
                 <div id="stock-value">{{stockValue}}({{symbol}})</div> 
+                {% if username %}
                 <form action="/bookmarkit" method="POST">
-                    <a href=# id=test><button type="submit" value="{{symbol}}" name="stock">Test</button></a>
+                    <a href=# id=test><button type="submit" value="{{symbol}}" name="stock">Add to bookmark</button></a>
                 </form>
+                {% endif %}
             <div class="quotes-graph">
                 <div id="quotes"> 
                 <div class="quote-column">

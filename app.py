@@ -34,18 +34,19 @@ response = requests.get(URL, headers=headers, params=querystring)
 status_code = response.status_code
 print(status_code) 
 """
-
-#RAPIDAPI_KEY    = "3b17580dafmsh7f4f720f9633022p1390f2jsne35be8f4c1cf" 
-RAPIDAPI_KEY = "a0d2fdbc8fmsha5fcc65f88fcaf5p18caf8jsn6463b5483650"  
+RAPIDAPI_KEY = "66deec0ce2msh8fa540303464a2cp19719fjsn420ed24dad4b" #2nd acc
+#RAPIDAPI_KEY    = "3b17580dafmsh7f4f720f9633022p1390f2jsne35be8f4c1cf" #mine
+#RAPIDAPI_KEY = "a0d2fdbc8fmsha5fcc65f88fcaf5p18caf8jsn6463b5483650"  #anant
+ 
 RAPIDAPI_HOST = "yh-finance.p.rapidapi.com"
 
 inputdata = {} 
 USERNAME = ""
-
+CURRENT_STOCK = ""
 
 @app.route("/")
-def default():
-   return render_template("index.html",username = USERNAME)
+def default(): 
+   return render_template("index.html",username = USERNAME) 
 
  #LOGIN
 
@@ -60,7 +61,20 @@ def checkuser():
   if(login(usern,password)):
     global USERNAME
     USERNAME = usern
-    return render_template("index.html",username=usern) 
+    bms_list = []
+    # calling bmks
+    mycursor = mydb.cursor() 
+    current_bookmarks = f"SELECT bookmarks from Userregst WHERE Username = '{USERNAME}';" 
+    mycursor.execute(current_bookmarks) 
+    fetch_bms = mycursor.fetchall()
+    print(fetch_bms)
+    bms = fetch_bms[0][0]
+    if bms is None:
+      return render_template("index.html",username = USERNAME,bookmarks = bms_list)
+    else:  
+     bms_list = toList(bms)
+     print(bms_list)
+     return render_template("index.html",username = USERNAME,bookmarks = bms_list)  
   else:
     USERNAME = "check your login details"
     return render_template("index.html",username="check your login details",loginfail=True)
@@ -196,14 +210,49 @@ def attachEvents(inputdata):
     eventList.append("close")
   #print(len(eventList))
   return eventList
+  #update Userregst set bookmarks = '[acc,asda,asda]' where Username = 'anant';
 @app.route("/bookmarkit", methods =["GET", "POST"])
-def bookmark():
-    stock = request.form.get("stock")
-    print("ads")
-    return "NULL"
-# route for fetching news and quotes from fetchquotes()
+def bookmark():   
+    mycursor = mydb.cursor()  
+    current_bookmarks = f"SELECT bookmarks from Userregst WHERE Username = '{USERNAME}';" 
+    mycursor.execute(current_bookmarks) 
+    fetch_bms = mycursor.fetchall()
+    bms = fetch_bms[0][0]
+    print(type(bms))
+    if bms is None:
+      first = f"update Userregst set bookmarks = '{CURRENT_STOCK}' WHERE Username = '{USERNAME}';"
+      mycursor.execute(first) 
+      mydb.commit()
+      print("db")
+    else:
+     bms_list = toList(bms) 
+     if(CURRENT_STOCK in bms_list):
+       return "Noreturn"
+     else:
+       
+      bms_list.append(CURRENT_STOCK)
+      print(bms_list)
+      bms_string = toString(bms_list)
+      print(bms_string)
+      pushBookmark = f"update Userregst set bookmarks = '{bms_string}' WHERE Username = 'anant';"
+      print(pushBookmark)
+      mycursor.execute(pushBookmark)  
+      mydb.commit()
+      print("commitrun")
+    #elif(fetch_bms.index(CURRENT_STOCK)):
+     #    return "NULL"     
+    return "NoReturn"
+# route for fetching news and quotes from fetchquotes() 
+def toList(string):
+    li = list(string.split(" "))
+    return li
+def toString(list):
+    stg = ' '.join([str(elem) for elem in list])
+    return stg
 def fetchStockDetails(stockData): 
     symbol = stockData["chart"]["result"][0]["meta"]["symbol"]
+    global CURRENT_STOCK
+    CURRENT_STOCK = symbol
     stockValue = stockData["chart"]["result"][0]["meta"]["regularMarketPrice"]
     url = "https://yh-finance.p.rapidapi.com/auto-complete"
     
