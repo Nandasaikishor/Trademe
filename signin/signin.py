@@ -1,6 +1,7 @@
 # importing Flask and other modules
+from matplotlib import use
 import mysql.connector
-
+from cryptography.fernet import Fernet   
 #from flask import Flask, request,Blueprint, render_template 
   
 # Flask constructor 
@@ -9,7 +10,9 @@ import mysql.connector
 
 # A decorator used to tell the application
 # which URL is associated function
- 
+KEY = "MrXiipKYDYm_5mspomSAQUAaU06Sbb3ffhj7z9k1HMY="
+KEY = KEY.encode()
+f = Fernet(KEY)
  
 def login(usern,password):
     #if request.method == "POST":
@@ -49,10 +52,12 @@ def login(usern,password):
            mycursor.execute(passwordstatement)
            passwordfound = mycursor.fetchall()
            y=passwordfound[0]
-           password=password.replace("'","")
-           if(y[0] == password):
-               return True
-       
+           hashed = y[0] 
+           userpass = f.decrypt(hashed.encode())
+           userpass=userpass.decode() 
+           if(password ==  userpass):
+               return True   
+           
          
 
       

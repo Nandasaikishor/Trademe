@@ -13,6 +13,7 @@ from datetime import datetime
 from matplotlib import rcParams  
 
 import mysql.connector
+from werkzeug.utils import redirect
  
 from signin.signin import login
 from signin.signup import valid
@@ -42,11 +43,32 @@ RAPIDAPI_HOST = "yh-finance.p.rapidapi.com"
 
 inputdata = {} 
 USERNAME = ""
-CURRENT_STOCK = ""
-
+CURRENT_STOCK = "" 
+MAINNEWS = []
+BOOKMARKS = []
+KEY = "MrXiipKYDYm_5mspomSAQUAaU06Sbb3ffhj7z9k1HMY="
+KEY = KEY.encode()
 @app.route("/")
-def default(): 
-   return render_template("index.html",username = USERNAME) 
+def default():
+  global MAINNEWS  
+  url = "https://yh-finance.p.rapidapi.com/news/v2/list"
+  querystring = {"region":"US","snippetCount":"28"}
+
+  headers = {
+    'x-rapidapi-host': RAPIDAPI_HOST,
+    'x-rapidapi-key': RAPIDAPI_KEY
+    }
+
+  response = requests.request("POST", url, headers=headers, params=querystring)
+  homeNews = response.json()
+  MAINNEWS = homeNews["data"]["main"]["stream"]
+  #print(n1[0]["content"]["title"])
+  print(len(BOOKMARKS))
+  if len(BOOKMARKS)>0:
+   print(BOOKMARKS[0])
+  if len(BOOKMARKS) == 0:
+    return render_template("index.html",username = USERNAME,homeNews = MAINNEWS) 
+  return render_template("index.html",username = USERNAME,homeNews = MAINNEWS,bookmarks = BOOKMARKS)   
 
  #LOGIN
 
@@ -60,8 +82,10 @@ def checkuser():
   
   if(login(usern,password)):
     global USERNAME
+    global homeNews
+    global BOOKMARKS
     USERNAME = usern
-    bms_list = []
+    BOOKMARKS = []
     # calling bmks
     mycursor = mydb.cursor() 
     current_bookmarks = f"SELECT bookmarks from Userregst WHERE Username = '{USERNAME}';" 
@@ -69,15 +93,16 @@ def checkuser():
     fetch_bms = mycursor.fetchall()
     print(fetch_bms)
     bms = fetch_bms[0][0]
-    if bms is None:
-      return render_template("index.html",username = USERNAME,bookmarks = bms_list)
-    else:  
-     bms_list = toList(bms)
-     print(bms_list)
-     return render_template("index.html",username = USERNAME,bookmarks = bms_list)  
+    if(len(BOOKMARKS)>0):
+     BOOKMARKS = toList(bms)
+     if BOOKMARKS[0] == '':
+      return render_template("index.html",username = USERNAME, homeNews = MAINNEWS)
+    else:   
+     print(BOOKMARKS)
+     return render_template("index.html",username = USERNAME,bookmarks = BOOKMARKS,homeNews = MAINNEWS)  
   else:
     USERNAME = "check your login details"
-    return render_template("index.html",username="check your login details",loginfail=True)
+    return render_template("index.html",username="check your login details",loginfail=True,homeNews = MAINNEWS)
 @app.route("/login")
 def renderlogin():
  return  render_template("loginPage.html")
@@ -85,7 +110,7 @@ def renderlogin():
 def logout():
   global USERNAME
   USERNAME = ""
-  return render_template("index.html") 
+  return render_template("index.html",homeNews = MAINNEWS) 
 
 #SIGNIN
 
@@ -125,7 +150,7 @@ def display():
 
            else: 
                    return render_template("index.html",username = USERNAME)
-           
+
 @app.route("/api/<symbol>")  # route for fetching stock data   
 def fetchStockData(symbol):   
     #print(symbol)
@@ -211,30 +236,54 @@ def attachEvents(inputdata):
   #print(len(eventList))
   return eventList
   #update Userregst set bookmarks = '[acc,asda,asda]' where Username = 'anant';
-@app.route("/bookmarkit", methods =["GET", "POST"])
-def bookmark():   
+
+@app.route("/delete/<symbol>", methods =["GET", "POST"])
+def deletebookmark(symbol):
+    global BOOKMARKS
     mycursor = mydb.cursor()  
     current_bookmarks = f"SELECT bookmarks from Userregst WHERE Username = '{USERNAME}';" 
     mycursor.execute(current_bookmarks) 
     fetch_bms = mycursor.fetchall()
     bms = fetch_bms[0][0]
-    print(type(bms))
-    if bms is None:
-      first = f"update Userregst set bookmarks = '{CURRENT_STOCK}' WHERE Username = '{USERNAME}';"
-      mycursor.execute(first) 
-      mydb.commit()
-      print("db")
-    else:
-     bms_list = toList(bms) 
-     if(CURRENT_STOCK in bms_list):
+    BOOKMARKS = toList(bms)  
+    BOOKMARKS.remove(symbol)
+    bms_string = toString(BOOKMARKS)
+    pushBookmark = f"update Userregst set bookmarks = '{bms_string}' WHERE Username = '{USERNAME}';"
+    print(pushBookmark)
+    mycursor.execute(pushBookmark)  
+    mydb.commit()
+    return render_template("index.html",bookmarks = BOOKMARKS,homeNews = MAINNEWS,username = USERNAME)    
+     
+@app.route("/bookmarkit", methods =["GET", "POST"])
+def bookmark():   
+    global BOOKMARKS  
+    mycursor = mydb.cursor()  
+    current_bookmarks = f"SELECT bookmarks from Userregst WHERE Username = '{USERNAME}';" 
+    mycursor.execute(current_bookmarks) 
+    fetch_bms = mycursor.fetchall()
+    bms = fetch_bms[0][0] 
+    print(type(bms)) 
+    if bms == None:
+       if(len(BOOKMARKS)>0): 
+          if BOOKMARKS[0] == '':
+             BOOKMARKS.pop(0)
+       first = f"update Userregst set bookmarks = '{CURRENT_STOCK}' WHERE Username = '{USERNAME}';"
+       mycursor.execute(first)
+       BOOKMARKS.append(CURRENT_STOCK) 
+       mydb.commit()
+       print("db")
+    else:  
+     if(CURRENT_STOCK in BOOKMARKS):
        return "Noreturn"
      else:
-       
-      bms_list.append(CURRENT_STOCK)
-      print(bms_list)
-      bms_string = toString(bms_list)
+      if(len(BOOKMARKS)>0): 
+          if BOOKMARKS[0] == '':
+             BOOKMARKS.pop(0)
+      BOOKMARKS.append(CURRENT_STOCK)
+      print(BOOKMARKS)
+      bms_string = toString(BOOKMARKS)
       print(bms_string)
-      pushBookmark = f"update Userregst set bookmarks = '{bms_string}' WHERE Username = 'anant';"
+      pushBookmark = f"update Userregst set bookmarks = '{bms_string}' WHERE Username = '{USERNAME}';"
       print(pushBookmark)
       mycursor.execute(pushBookmark)  
       mydb.commit()

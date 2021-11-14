@@ -53,31 +53,27 @@
         </form>
         {% if username %} 
         {% if bookmarks %}
-           {% for bookmark in bookmarks %}
-           <a href="/api/{{bookmark}}"> {{bookmark}}</a>&nbsp;&nbsp;&nbsp;
-           &nbsp;&nbsp;&nbsp; 
-           {% endfor %} 
+           {% for bookmark in bookmarks %} 
+            <a href="/api/{{bookmark}}"> {{bookmark}}</a>&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;
+        <a href="/delete/{{bookmark}}"><button>X</button></a>
+           {% endfor %}   
         {% endif %}
         {% endif %} 
-        </br>
-
+        </br> 
             {% if symbols_list %} 
                 {% for symbol in symbols_list %}
                   <a href="/api/{{symbol}}"> {{symbol}}</a>
         </br>
                 {% endfor %}
             {% endif %} 
-
-
-
-
-
-
-
-
-
-
-
+            <div></div>
+            {% if homeNews %}
+                {% for i in range(homeNews|length) %}
+                <a href="">{{homeNews[i]["content"]["title"]}}</a>
+    </br>
+                {% endfor %}
+            {% endif %} 
 
         <!-- displaying the contents of particular stocks -->
       <!--  <div class="content">
@@ -89,6 +85,7 @@
             {% endif %} 
         </div>
         -->
+         <!-- particular stock details -->
             {% if news %}   
             <div class="content">
                 <div id="stock-value">{{stockValue}}({{symbol}})</div> 

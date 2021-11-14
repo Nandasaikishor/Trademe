@@ -1,11 +1,14 @@
 # importing Flask and other modules
 import mysql.connector 
-  
+import bcrypt  
+from cryptography.fernet import Fernet
 # Flask constructor 
   
 # A decorator used to tell the application
 # which URL is associated function
- 
+KEY = "MrXiipKYDYm_5mspomSAQUAaU06Sbb3ffhj7z9k1HMY="
+KEY = KEY.encode()
+f = Fernet(KEY)
 def valid(usern,mail_id,password,phoneno):
     #if request.method == "POST":
        # getting input with name = fname in HTML form
@@ -30,8 +33,10 @@ def valid(usern,mail_id,password,phoneno):
        mycursor = mydb.cursor()
        #mycursor.execute("CREATE TABLE Userregst (Username VARCHAR(255), mail_id VARCHAR(255), pswrd VARCHAR(255), phoneno VARCHAR(100),PRIMARY KEY (`mail_id`))")
        #We have a database created, so we now insert data into columns using Insert into command 
-       sql = "INSERT INTO Userregst (Username,mail_id,pswrd,phoneno ) VALUES (%s, %s, %s, %s)"
-       val = (usern, mail_id, password,phoneno)
+       sql = "INSERT INTO Userregst (Username,mail_id,pswrd,phoneno ) VALUES (%s, %s, %s, %s)" 
+       hashed = f.encrypt(password.encode())
+       print(hashed)
+       val = (usern, mail_id,hashed,phoneno)
        mycursor.execute(sql, val)
        mydb.commit()
        #We stored the data as list and inserted in a go
